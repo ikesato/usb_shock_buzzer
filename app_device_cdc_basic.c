@@ -28,6 +28,7 @@ please contact mla_licensing@microchip.com
 
 #include "app_device_cdc_basic.h"
 #include "usb_config.h"
+#include "app.h"
 
 /** DEFINES ********************************************************/
 #define BUTTON_DEVICE_CDC_BASIC_DEMO PORTAbits.RA3
@@ -164,5 +165,6 @@ void APP_DeviceCDCBasicDemoTasks()
         }
     }
 
+    loop();
     CDCTxService();
 }

@@ -25,6 +25,7 @@ please contact mla_licensing@microchip.com
 #include "usb.h"
 #include "usb_device.h"
 #include "usb_device_cdc.h"
+#include "app.h"
 
 /********************************************************************
  * Function:        void main(void)
@@ -47,6 +48,7 @@ MAIN_RETURN main(void)
 
     USBDeviceInit();
     USBDeviceAttach();
+    setup();
 
     while(1)
     {

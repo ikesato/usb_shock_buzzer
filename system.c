@@ -19,6 +19,7 @@ please contact mla_licensing@microchip.com
 
 #include "system.h"
 #include "usb.h"
+#include "app.h"
 
 /** CONFIGURATION Bits **********************************************/
 
@@ -85,6 +86,7 @@ void interrupt SYS_InterruptHigh(void)
     #if defined(USB_INTERRUPT)
         USBDeviceTasks();
     #endif
+    interrupted();
 }
 #else
         void YourHighPriorityISRCode();
