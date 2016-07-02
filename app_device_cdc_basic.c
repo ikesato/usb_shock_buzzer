@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-To request to license the code under the MLA license (www.microchip.com/mla_license), 
+To request to license the code under the MLA license (www.microchip.com/mla_license),
 please contact mla_licensing@microchip.com
 *******************************************************************************/
 
@@ -52,7 +52,7 @@ static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 *
 ********************************************************************/
 void APP_DeviceCDCBasicDemoInitialize()
-{   
+{
     line_coding.bCharFormat = 0;
     line_coding.bDataBits = 8;
     line_coding.bParityType = 0;
@@ -93,7 +93,7 @@ void APP_DeviceCDCBasicDemoTasks()
     {
         return;
     }
-        
+
     /* If the user has pressed the button associated with this demo, then we
      * are going to send a "Button Pressed" message to the terminal.
      */

@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-To request to license the code under the MLA license (www.microchip.com/mla_license), 
+To request to license the code under the MLA license (www.microchip.com/mla_license),
 please contact mla_licensing@microchip.com
 *******************************************************************************/
 
@@ -68,17 +68,17 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
     {
         case SYSTEM_STATE_USB_START:
             break;
-            
-        case SYSTEM_STATE_USB_SUSPEND: 
+
+        case SYSTEM_STATE_USB_SUSPEND:
             break;
-            
+
         case SYSTEM_STATE_USB_RESUME:
             break;
     }
 }
 
-			
-			
+
+
 #if defined(__XC8)
 void interrupt SYS_InterruptHigh(void)
 {
@@ -89,7 +89,7 @@ void interrupt SYS_InterruptHigh(void)
 #else
         void YourHighPriorityISRCode();
         void YourLowPriorityISRCode();
-        
+
 	//On PIC18 devices, addresses 0x00, 0x08, and 0x18 are used for
 	//the reset, high priority interrupt, and low priority interrupt
 	//vectors.  However, the current Microchip USB bootloader

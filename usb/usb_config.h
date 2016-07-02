@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-To request to license the code under the MLA license (www.microchip.com/mla_license), 
+To request to license the code under the MLA license (www.microchip.com/mla_license),
 please contact mla_licensing@microchip.com
 *******************************************************************************/
 
@@ -31,7 +31,7 @@ please contact mla_licensing@microchip.com
 								// of applications.  Exceptions to this, are applications
 								// that use EP0 IN or OUT for sending large amounts of
 								// application related data.
-									
+
 #define USB_MAX_NUM_INT     	2   //Set this number to match the maximum interface number used in the descriptors for this firmware project
 #define USB_MAX_EP_NUMBER	    2   //Set this number to match the maximum endpoint number used in the descriptors for this firmware project
 
@@ -49,13 +49,13 @@ please contact mla_licensing@microchip.com
 
 //------------------------------------------------------------------------------
 //Select an endpoint ping-pong bufferring mode.  Some microcontrollers only
-//support certain modes.  For most applications, it is recommended to use either 
-//the USB_PING_PONG__FULL_PING_PONG or USB_PING_PONG__EP0_OUT_ONLY options.  
-//The other settings are supported on some devices, but they are not 
-//recommended, as they offer inferior control transfer timing performance.  
+//support certain modes.  For most applications, it is recommended to use either
+//the USB_PING_PONG__FULL_PING_PONG or USB_PING_PONG__EP0_OUT_ONLY options.
+//The other settings are supported on some devices, but they are not
+//recommended, as they offer inferior control transfer timing performance.
 //See inline code comments in usb_device.c for additional details.
 //Enabling ping pong bufferring on an endpoint generally increases firmware
-//overhead somewhat, but when both buffers are used simultaneously in the 
+//overhead somewhat, but when both buffers are used simultaneously in the
 //firmware, can offer better sustained bandwidth, especially for OUT endpoints.
 //------------------------------------------------------
 //#define USB_PING_PONG_MODE USB_PING_PONG__NO_PING_PONG    //Not recommended
@@ -69,7 +69,7 @@ please contact mla_licensing@microchip.com
 //Select a USB stack operating mode.  In the USB_INTERRUPT mode, the USB stack
 //main task handler gets called only when necessary as an interrupt handler.
 //This can potentially minimize CPU utilization, but adds context saving
-//and restoring overhead associated with interrupts, which can potentially 
+//and restoring overhead associated with interrupts, which can potentially
 //decrease performance.
 //When the USB_POLLING mode is selected, the USB stack main task handler
 //(ex: USBDeviceTasks()) must be called periodically by the application firmware
@@ -140,19 +140,19 @@ please contact mla_licensing@microchip.com
 #define USB_NUM_STRING_DESCRIPTORS 3  //Set this number to match the total number of string descriptors that are implemented in the usb_descriptors.c file
 
 /*******************************************************************
- * Event disable options                                           
- *   Enable a definition to suppress a specific event.  By default 
- *   all events are sent.                                          
+ * Event disable options
+ *   Enable a definition to suppress a specific event.  By default
+ *   all events are sent.
  *******************************************************************/
 //#define USB_DISABLE_SUSPEND_HANDLER
 //#define USB_DISABLE_WAKEUP_FROM_SUSPEND_HANDLER
 //#define USB_DISABLE_SOF_HANDLER
 //#define USB_DISABLE_TRANSFER_TERMINATED_HANDLER
-//#define USB_DISABLE_ERROR_HANDLER 
-//#define USB_DISABLE_NONSTANDARD_EP0_REQUEST_HANDLER 
-//#define USB_DISABLE_SET_DESCRIPTOR_HANDLER 
+//#define USB_DISABLE_ERROR_HANDLER
+//#define USB_DISABLE_NONSTANDARD_EP0_REQUEST_HANDLER
+//#define USB_DISABLE_SET_DESCRIPTOR_HANDLER
 //#define USB_DISABLE_SET_CONFIGURATION_HANDLER
-//#define USB_DISABLE_TRANSFER_COMPLETE_HANDLER 
+//#define USB_DISABLE_TRANSFER_COMPLETE_HANDLER
 
 /** DEVICE CLASS USAGE *********************************************/
 #define USB_USE_CDC

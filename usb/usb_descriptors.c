@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-To request to license the code under the MLA license (www.microchip.com/mla_license), 
+To request to license the code under the MLA license (www.microchip.com/mla_license),
 please contact mla_licensing@microchip.com
 *******************************************************************************/
 
@@ -24,7 +24,7 @@ Filling in the descriptor values in the usb_descriptors.c file:
 -------------------------------------------------------------------
 
 [Device Descriptors]
-The device descriptor is defined as a USB_DEVICE_DESCRIPTOR type.  
+The device descriptor is defined as a USB_DEVICE_DESCRIPTOR type.
 This type is defined in usb_ch9.h  Each entry into this structure
 needs to be the correct length for the data type of the entry.
 
@@ -45,7 +45,7 @@ _SELF tells the USB host that this device is self-powered. The
 _RWU tells the USB host that this device supports Remote Wakeup.
 
 [Endpoint Descriptors]
-Like the configuration descriptor, the endpoint descriptors were 
+Like the configuration descriptor, the endpoint descriptors were
 changed in v2.x of the stack from a structure to a uint8_t array.  As
 endpoint descriptors also has a field that are multi-byte entities,
 please be sure to specify both bytes of the field.  For example, for
@@ -128,7 +128,7 @@ is a dummy place holder since configuration 0 is the un-configured
 state according to the definition in the USB specification.
 
 ********************************************************************/
- 
+
 /*********************************************************************
  * Descriptor specific type definitions are defined in:
  * usb_device.h
@@ -138,7 +138,7 @@ state according to the definition in the USB specification.
  ********************************************************************/
 #ifndef __USB_DESCRIPTORS_C
 #define __USB_DESCRIPTORS_C
- 
+
 /** INCLUDES *******************************************************/
 #include "usb.h"
 #include "usb_device_cdc.h"
@@ -178,7 +178,7 @@ const uint8_t configDescriptor1[]={
     0,                      // Configuration string index
     _DEFAULT | _SELF,               // Attributes, see usb_device.h
     50,                     // Max power consumption (2X mA)
-							
+
     /* Interface Descriptor */
     9,//sizeof(USB_INTF_DSC),   // Size of this descriptor in bytes
     USB_DESCRIPTOR_INTERFACE,               // INTERFACE descriptor type
@@ -232,7 +232,7 @@ const uint8_t configDescriptor1[]={
     0,                      // Subclass code
     NO_PROTOCOL,            // Protocol code
     0,                      // Interface string index
-    
+
     /* Endpoint Descriptor */
     //sizeof(USB_EP_DSC),DSC_EP,_EP03_OUT,_BULK,CDC_BULK_OUT_EP_SIZE,0x00,
     0x07,/*sizeof(USB_EP_DSC)*/
@@ -271,9 +271,9 @@ sizeof(sd002),USB_DESCRIPTOR_STRING,
 'E','m','u','l','a','t','i','o','n',' ','D','e','m','o'}
 };
 
-//Serial number string descriptor.  If a serial number string is implemented, 
-//it should be unique for every single device coming off the production assembly 
-//line.  Plugging two devices with the same serial number into a computer 
+//Serial number string descriptor.  If a serial number string is implemented,
+//it should be unique for every single device coming off the production assembly
+//line.  Plugging two devices with the same serial number into a computer
 //simultaneously will cause problems (in extreme cases BSOD).
 //Note: Common OSes put restrictions on the possible values that are allowed.
 //For best OS compatibility, the serial number string should only consist
