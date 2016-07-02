@@ -21,7 +21,6 @@ please contact mla_licensing@microchip.com
 #include "system.h"
 
 #include "app_device_cdc_basic.h"
-#include "app_led_usb_status.h"
 
 #include "usb.h"
 #include "usb_device.h"

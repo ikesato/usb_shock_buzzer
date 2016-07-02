@@ -4,10 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <logicalFolder name="bsp" displayName="bsp" projectFiles="true">
-        <itemPath>bsp/buttons.h</itemPath>
-        <itemPath>bsp/leds.h</itemPath>
-      </logicalFolder>
       <logicalFolder name="usb" displayName="usb" projectFiles="true">
         <itemPath>usb/usb.h</itemPath>
         <itemPath>usb/usb_ch9.h</itemPath>
@@ -20,9 +16,7 @@
         <itemPath>usb/usb_hal_pic18.h</itemPath>
       </logicalFolder>
       <itemPath>app_device_cdc_basic.h</itemPath>
-      <itemPath>/Applications/microchip/mla/v2016_04_27/apps/usb/device/cdc_basic/firmware/low_pin_count_usb_development_kit_pic18f14k50.x/app_led_usb_status.h</itemPath>
       <itemPath>fixed_address_memory.h</itemPath>
-      <itemPath>io_mapping.h</itemPath>
       <itemPath>system.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -32,17 +26,12 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <logicalFolder name="bsp" displayName="bsp" projectFiles="true">
-        <itemPath>bsp/buttons.c</itemPath>
-        <itemPath>bsp/leds.c</itemPath>
-      </logicalFolder>
       <logicalFolder name="usb" displayName="usb" projectFiles="true">
         <itemPath>usb/usb_descriptors.c</itemPath>
         <itemPath>usb/usb_device.c</itemPath>
         <itemPath>usb/usb_device_cdc.c</itemPath>
       </logicalFolder>
       <itemPath>app_device_cdc_basic.c</itemPath>
-      <itemPath>/Applications/microchip/mla/v2016_04_27/apps/usb/device/cdc_basic/firmware/low_pin_count_usb_development_kit_pic18f14k50.x/app_led_usb_status.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>system.c</itemPath>
       <itemPath>usb_events.c</itemPath>

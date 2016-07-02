@@ -26,9 +26,11 @@ please contact mla_licensing@microchip.com
 
 #include "usb.h"
 
-#include "app_led_usb_status.h"
 #include "app_device_cdc_basic.h"
 #include "usb_config.h"
+
+/** DEFINES ********************************************************/
+#define BUTTON_DEVICE_CDC_BASIC_DEMO PORTAbits.RA3
 
 /** VARIABLES ******************************************************/
 
@@ -95,7 +97,7 @@ void APP_DeviceCDCBasicDemoTasks()
     /* If the user has pressed the button associated with this demo, then we
      * are going to send a "Button Pressed" message to the terminal.
      */
-    if(BUTTON_IsPressed(BUTTON_DEVICE_CDC_BASIC_DEMO) == true)
+    if(BUTTON_DEVICE_CDC_BASIC_DEMO == 0)
     {
         /* Make sure that we only send the message once per button press and
          * not continuously as the button is held.
