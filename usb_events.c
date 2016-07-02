@@ -51,11 +51,11 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
 {
     switch( (int) event )
     {
-        case EVENT_TRANSFER:
-            break;
+        //case EVENT_TRANSFER:
+        //    break;
 
-        case EVENT_SOF:
-            break;
+        //case EVENT_SOF:
+        //    break;
 
         case EVENT_SUSPEND:
             //Call the hardware platform specific handler for suspend events for
@@ -82,8 +82,8 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
             APP_DeviceCDCBasicDemoInitialize();
             break;
 
-        case EVENT_SET_DESCRIPTOR:
-            break;
+        //case EVENT_SET_DESCRIPTOR:
+        //    break;
 
         case EVENT_EP0_REQUEST:
             /* We have received a non-standard USB request.  The HID driver
@@ -91,14 +91,14 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
             USBCheckCDCRequest();
             break;
 
-        case EVENT_BUS_ERROR:
-            break;
+        //case EVENT_BUS_ERROR:
+        //    break;
 
-        case EVENT_TRANSFER_TERMINATED:
-            break;
+        //case EVENT_TRANSFER_TERMINATED:
+        //    break;
 
-        default:
-            break;
+        //default:
+        //    break;
     }
     return true;
 }

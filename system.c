@@ -66,14 +66,14 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
 {
     switch(state)
     {
-        case SYSTEM_STATE_USB_START:
-            break;
+        //case SYSTEM_STATE_USB_START:
+        //    break;
 
-        case SYSTEM_STATE_USB_SUSPEND:
-            break;
+        //case SYSTEM_STATE_USB_SUSPEND:
+        //    break;
 
-        case SYSTEM_STATE_USB_RESUME:
-            break;
+        //case SYSTEM_STATE_USB_RESUME:
+        //    break;
     }
 }
 
