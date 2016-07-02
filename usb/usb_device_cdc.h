@@ -536,28 +536,28 @@ please contact mla_licensing@microchip.com
 void CDCInitEP(void);
 
 /******************************************************************************
- 	Function:
- 		void USBCheckCDCRequest(void)
+    Function:
+        void USBCheckCDCRequest(void)
 
- 	Description:
- 		This routine checks the most recently received SETUP data packet to
- 		see if the request is specific to the CDC class.  If the request was
- 		a CDC specific request, this function will take care of handling the
- 		request and responding appropriately.
+    Description:
+        This routine checks the most recently received SETUP data packet to
+        see if the request is specific to the CDC class.  If the request was
+        a CDC specific request, this function will take care of handling the
+        request and responding appropriately.
 
- 	PreCondition:
- 		This function should only be called after a control transfer SETUP
- 		packet has arrived from the host.
+    PreCondition:
+        This function should only be called after a control transfer SETUP
+        packet has arrived from the host.
 
-	Parameters:
-		None
+    Parameters:
+        None
 
-	Return Values:
-		None
+    Return Values:
+        None
 
-	Remarks:
-		This function does not change status or do anything if the SETUP packet
-		did not contain a CDC class specific request.
+    Remarks:
+        This function does not change status or do anything if the SETUP packet
+        did not contain a CDC class specific request.
   *****************************************************************************/
 void USBCheckCDCRequest(void);
 
@@ -654,7 +654,7 @@ uint8_t getsUSBUSART(uint8_t *buffer, uint8_t len);
 
 /******************************************************************************
   Function:
-	void putUSBUSART(char *data, uint8_t length)
+    void putUSBUSART(char *data, uint8_t length)
 
   Summary:
     putUSBUSART writes an array of data to the USB. Use this version, is
@@ -695,8 +695,8 @@ uint8_t getsUSBUSART(uint8_t *buffer, uint8_t len);
 void putUSBUSART(uint8_t *data, uint8_t Length);
 
 /******************************************************************************
-	Function:
-		void putsUSBUSART(char *data)
+    Function:
+        void putsUSBUSART(char *data)
 
   Summary:
     putsUSBUSART writes a string of data to the USB including the null

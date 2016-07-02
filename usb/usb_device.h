@@ -362,7 +362,7 @@ void USBEnableEndpoint(uint8_t ep, uint8_t options);
     The USBTransferOnePacket() function prepares a USB endpoint
     so that it may send data to the host (an IN transaction), or
     receive data from the host (an OUT transaction).  The
-    USBTransferOnePacket() function can be used both to receive	and
+    USBTransferOnePacket() function can be used both to receive and
     send data to the host.  This function is the primary API function
     provided by the USB stack firmware for sending or receiving application
     data over the USB port.
@@ -373,7 +373,7 @@ void USBEnableEndpoint(uint8_t ep, uint8_t options);
     functions, such as USBEP0Receive(), USBEP0SendRAMPtr(), and
     USBEP0SendROMPtr() are provided for this purpose.
 
-    The	USBTransferOnePacket() writes to the Buffer Descriptor Table (BDT)
+    The USBTransferOnePacket() writes to the Buffer Descriptor Table (BDT)
     entry associated with an endpoint buffer, and sets the UOWN bit, which
     prepares the USB hardware to allow the transaction to complete.  The
     application firmware can use the USBHandleBusy() macro to check the
@@ -389,10 +389,10 @@ void USBEnableEndpoint(uint8_t ep, uint8_t options);
         //make sure that the last transaction isn't busy by checking the handle
         if(!USBHandleBusy(USBInHandle))
         {
-	        //Write the new data that we wish to send to the host to the INPacket[] array
-	        INPacket[0] = USEFUL_APPLICATION_VALUE1;
-	        INPacket[1] = USEFUL_APPLICATION_VALUE2;
-	        //INPacket[2] = ... (fill in the rest of the packet data)
+            //Write the new data that we wish to send to the host to the INPacket[] array
+            INPacket[0] = USEFUL_APPLICATION_VALUE1;
+            INPacket[1] = USEFUL_APPLICATION_VALUE2;
+            //INPacket[2] = ... (fill in the rest of the packet data)
 
             //Send the data contained in the INPacket[] array through endpoint "EP_NUM"
             USBInHandle = USBTransferOnePacket(EP_NUM,IN_TO_HOST,(uint8_t*)&INPacket[0],sizeof(INPacket));
@@ -414,7 +414,7 @@ void USBEnableEndpoint(uint8_t ep, uint8_t options);
 
   Input:
     uint8_t ep - The endpoint number that the data will be transmitted or
-	          received on
+              received on
     uint8_t dir - The direction of the transfer
                This value is either OUT_FROM_HOST or IN_TO_HOST
     uint8_t* data - For IN transactions: pointer to the RAM buffer containing
@@ -435,7 +435,7 @@ void USBEnableEndpoint(uint8_t ep, uint8_t options);
   Remarks:
     If calling the USBTransferOnePacket() function from within the USBCBInitEP()
     callback function, the set configuration is still being processed and the
-    USBDeviceState may not be == CONFIGURED_STATE yet.  In this	special case,
+    USBDeviceState may not be == CONFIGURED_STATE yet.  In this special case,
     the USBTransferOnePacket() may still be called, but make sure that the
     endpoint has been enabled and initialized by the USBEnableEndpoint()
     function first.
@@ -630,7 +630,7 @@ void USBDeviceDetach(void);
         None
 
     Remarks:
-		See also the USBDeviceDetach() API function documentation.
+        See also the USBDeviceDetach() API function documentation.
 ****************************************************************************/
 void USBDeviceAttach(void);
 

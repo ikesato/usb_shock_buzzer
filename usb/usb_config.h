@@ -25,15 +25,15 @@ please contact mla_licensing@microchip.com
 #define USBCFG_H
 
 /** DEFINITIONS ****************************************************/
-#define USB_EP0_BUFF_SIZE		8	// Valid Options: 8, 16, 32, or 64 bytes.
-								// Using larger options take more SRAM, but
-								// does not provide much advantage in most types
-								// of applications.  Exceptions to this, are applications
-								// that use EP0 IN or OUT for sending large amounts of
-								// application related data.
+#define USB_EP0_BUFF_SIZE       8   // Valid Options: 8, 16, 32, or 64 bytes.
+                                // Using larger options take more SRAM, but
+                                // does not provide much advantage in most types
+                                // of applications.  Exceptions to this, are applications
+                                // that use EP0 IN or OUT for sending large amounts of
+                                // application related data.
 
-#define USB_MAX_NUM_INT     	2   //Set this number to match the maximum interface number used in the descriptors for this firmware project
-#define USB_MAX_EP_NUMBER	    2   //Set this number to match the maximum endpoint number used in the descriptors for this firmware project
+#define USB_MAX_NUM_INT         2   //Set this number to match the maximum interface number used in the descriptors for this firmware project
+#define USB_MAX_EP_NUMBER       2   //Set this number to match the maximum endpoint number used in the descriptors for this firmware project
 
 //Device descriptor - if these two definitions are not defined then
 //  a const USB_DEVICE_DESCRIPTOR variable by the exact name of device_dsc
@@ -61,7 +61,7 @@ please contact mla_licensing@microchip.com
 //#define USB_PING_PONG_MODE USB_PING_PONG__NO_PING_PONG    //Not recommended
 #define USB_PING_PONG_MODE USB_PING_PONG__FULL_PING_PONG    //A good all around setting
 //#define USB_PING_PONG_MODE USB_PING_PONG__EP0_OUT_ONLY    //Another good setting
-//#define USB_PING_PONG_MODE USB_PING_PONG__ALL_BUT_EP0	    //Not recommended
+//#define USB_PING_PONG_MODE USB_PING_PONG__ALL_BUT_EP0     //Not recommended
 //------------------------------------------------------------------------------
 
 

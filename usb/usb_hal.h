@@ -36,13 +36,13 @@ please contact mla_licensing@microchip.com
         #include "usb_hal_pic18.h"
     #endif
 #elif defined(__C30__) || defined __XC16__
-	#if defined(__dsPIC33E__)
+    #if defined(__dsPIC33E__)
             #include "usb_hal_dspic33e.h"
-	#elif defined(__PIC24E__)
+    #elif defined(__PIC24E__)
             #include "usb_hal_pic24e.h"
-	#else
+    #else
             #include "usb_hal_pic24f.h"
-	#endif
+    #endif
 #else
     #error "Silicon Platform not defined"
 #endif

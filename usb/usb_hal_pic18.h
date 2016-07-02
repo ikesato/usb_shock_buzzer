@@ -89,37 +89,37 @@ please contact mla_licensing@microchip.com
 #define USBTransactionCompleteIE UIEbits.TRNIE
 #define USBTransactionCompleteIF UIRbits.TRNIF
 #define USBTransactionCompleteIFReg UIR
-#define USBTransactionCompleteIFBitNum 0xF7		//AND mask for clearing TRNIF bit position 4
+#define USBTransactionCompleteIFBitNum 0xF7     //AND mask for clearing TRNIF bit position 4
 
 #define USBResetIE  UIEbits.URSTIE
 #define USBResetIF  UIRbits.URSTIF
 #define USBResetIFReg UIR
-#define USBResetIFBitNum 0xFE					//AND mask for clearing URSTIF bit position 0
+#define USBResetIFBitNum 0xFE                   //AND mask for clearing URSTIF bit position 0
 
 #define USBIdleIE UIEbits.IDLEIE
 #define USBIdleIF UIRbits.IDLEIF
 #define USBIdleIFReg UIR
-#define USBIdleIFBitNum 0xEF					//AND mask for clearing IDLEIF bit position 5
+#define USBIdleIFBitNum 0xEF                    //AND mask for clearing IDLEIF bit position 5
 
 #define USBActivityIE UIEbits.ACTVIE
 #define USBActivityIF UIRbits.ACTVIF
 #define USBActivityIFReg UIR
-#define USBActivityIFBitNum 0xFB				//AND mask for clearing ACTVIF bit position 2
+#define USBActivityIFBitNum 0xFB                //AND mask for clearing ACTVIF bit position 2
 
 #define USBSOFIE UIEbits.SOFIE
 #define USBSOFIF UIRbits.SOFIF
 #define USBSOFIFReg UIR
-#define USBSOFIFBitNum 0xBF						//AND mask for clearing SOFIF bit position 6
+#define USBSOFIFBitNum 0xBF                     //AND mask for clearing SOFIF bit position 6
 
 #define USBStallIE UIEbits.STALLIE
 #define USBStallIF UIRbits.STALLIF
 #define USBStallIFReg UIR
-#define USBStallIFBitNum 0xDF					//AND mask for clearing STALLIF bit position 5
+#define USBStallIFBitNum 0xDF                   //AND mask for clearing STALLIF bit position 5
 
 #define USBErrorIE UIEbits.UERRIE
 #define USBErrorIF UIRbits.UERRIF
 #define USBErrorIFReg UIR
-#define USBErrorIFBitNum 0xFD					//UERRIF bit position 1.  Note: This bit is read only and is cleared by clearing the enabled UEIR flags
+#define USBErrorIFBitNum 0xFD                   //UERRIF bit position 1.  Note: This bit is read only and is cleared by clearing the enabled UEIR flags
 
 //----- Event call back defintions --------------------------------------------
 #if defined(USB_DISABLE_SOF_HANDLER)
@@ -195,9 +195,9 @@ please contact mla_licensing@microchip.com
 #elif defined(__18F24K50) || defined(__18F25K50) || defined(__18F45K50) || defined(__18LF24K50) || defined(__18LF25K50) || defined(__18LF45K50)
     #define USB_BDT_ADDRESS 0x400     //See Linker Script, BDT in bank 4
 #elif defined(__18F47J53) || defined(__18F46J53) || defined(__18F27J53) || defined(__18F26J53) || defined(__18LF47J53) || defined(__18LF46J53) || defined(__18LF27J53) || defined(__18LF26J53)
-    #define USB_BDT_ADDRESS 0xD00		//BDT in Bank 13 on these devices
+    #define USB_BDT_ADDRESS 0xD00       //BDT in Bank 13 on these devices
 #elif defined(__18F97J94) || defined(__18F87J94) || defined(__18F67J94) || defined(__18F96J94) || defined(__18F86J94) || defined(__18F66J94) || defined(__18F96J99) || defined(__18F95J94) || defined(__18F86J99) || defined(__18F85J94) || defined(__18F66J99) || defined(__18F65J94)
-    #define USB_BDT_ADDRESS 0x100		//BDT in Bank 1 on these devices
+    #define USB_BDT_ADDRESS 0x100       //BDT in Bank 1 on these devices
 #else
     #define USB_BDT_ADDRESS 0x400     //All other PIC18 devices place the BDT in usb4:0x400-0x4FF(256-byte)
 #endif
@@ -521,9 +521,9 @@ typedef union _POINTER
  *
  * Input:
  *   register - the register mnemonic for the register holding the interrupt
- 				flag to be cleared
+                flag to be cleared
  *   uint8_t if_and_flag_mask - an AND mask for the interrupt flag that will be
- 				cleared
+                cleared
  *
  * Output:          None
  *
@@ -533,7 +533,7 @@ typedef union _POINTER
  *
  * Note:
  *******************************************************************/
-#define USBClearInterruptFlag(reg_name, if_and_flag_mask)	(reg_name &= if_and_flag_mask)
+#define USBClearInterruptFlag(reg_name, if_and_flag_mask)   (reg_name &= if_and_flag_mask)
 
 /********************************************************************
     Function:
