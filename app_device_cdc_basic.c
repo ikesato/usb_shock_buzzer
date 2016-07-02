@@ -80,19 +80,19 @@ void APP_DeviceCDCBasicDemoTasks()
     /* If the USB device isn't configured yet, we can't really do anything
      * else since we don't have a host to talk to.  So jump back to the
      * top of the while loop. */
-    if( USBGetDeviceState() < CONFIGURED_STATE )
-    {
-        return;
-    }
+    //if( USBGetDeviceState() < CONFIGURED_STATE )
+    //{
+    //    return;
+    //}
 
     /* If we are currently suspended, then we need to see if we need to
      * issue a remote wakeup.  In either case, we shouldn't process any
      * keyboard commands since we aren't currently communicating to the host
      * thus just continue back to the start of the while loop. */
-    if( USBIsDeviceSuspended()== true )
-    {
-        return;
-    }
+    //if( USBIsDeviceSuspended()== true )
+    //{
+    //    return;
+    //}
 
     /* If the user has pressed the button associated with this demo, then we
      * are going to send a "Button Pressed" message to the terminal.
