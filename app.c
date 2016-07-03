@@ -1,7 +1,11 @@
 #include "system.h"
 #include "app.h"
+#include "adxl213.h"
 
 #define T0CNT (65536-375)
+
+ADXL213 accel;
+
 
 void setup(void)
 {
@@ -119,9 +123,7 @@ PORTCbits.RC2 = 1;
     IOCBbits.IOCB5 = 1;
     IOCBbits.IOCB7 = 1;
 
-    // accel
-    //accel_init(&accel_x);
-    //accel_init(&accel_y);
+    adxl213_init(&accel);
 }
 
 void interrupted(void)
@@ -134,6 +136,9 @@ void interrupted(void)
     }
     if (INTCONbits.RABIF == 1) {
         INTCONbits.RABIF = 0;
+        unsigned short now = TMR3;
+        adxl213_update(&accel, PORTBbits.RB5, PORTBbits.RB7, now);
+        adxl213_low_pass_filter(&accel);
     }
     if (INTCONbits.INT0IF) {
         // wake up from sleep mode

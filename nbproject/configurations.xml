@@ -19,6 +19,7 @@
       <itemPath>fixed_address_memory.h</itemPath>
       <itemPath>system.h</itemPath>
       <itemPath>app.h</itemPath>
+      <itemPath>adxl213.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -37,6 +38,7 @@
       <itemPath>system.c</itemPath>
       <itemPath>usb_events.c</itemPath>
       <itemPath>app.c</itemPath>
+      <itemPath>adxl213.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
