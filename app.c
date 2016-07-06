@@ -1,10 +1,27 @@
 #include "system.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+
+#include "usb.h"
+#include "usb_config.h"
+#include "usb_device_cdc.h"
+
 #include "app.h"
 #include "adxl213.h"
 
 #define T0CNT (65536-375)
 
-ADXL213 accel;
+/** DEFINES ********************************************************/
+#define BUTTON_DEVICE_CDC_BASIC_DEMO PORTAbits.RA3
+
+/** VARIABLES ******************************************************/
+
+static bool buttonPressed;
+static char buttonMessage[] = "Button pressed.\r\n";
+static uint8_t readBuffer[CDC_DATA_OUT_EP_SIZE];
+static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
+static ADXL213 accel;
 
 
 void setup(void)
@@ -124,6 +141,9 @@ PORTCbits.RC2 = 1;
     IOCBbits.IOCB7 = 1;
 
     adxl213_init(&accel);
+
+    // app init
+    buttonPressed = false;
 }
 
 void interrupted(void)
@@ -153,4 +173,83 @@ void interrupted(void)
 void loop(void)
 {
     PORTCbits.RC6 = 1;
+    /* If the user has pressed the button associated with this demo, then we
+     * are going to send a "Button Pressed" message to the terminal.
+     */
+    if(BUTTON_DEVICE_CDC_BASIC_DEMO == 0)
+    {
+        /* Make sure that we only send the message once per button press and
+         * not continuously as the button is held.
+         */
+        if(buttonPressed == false)
+        {
+            /* Make sure that the CDC driver is ready for a transmission.
+             */
+            if(mUSBUSARTIsTxTrfReady() == true)
+            {
+                putrsUSBUSART(buttonMessage);
+                buttonPressed = true;
+            }
+        }
+    }
+    else
+    {
+        /* If the button is released, we can then allow a new message to be
+         * sent the next time the button is pressed.
+         */
+        buttonPressed = false;
+    }
+
+    /* Check to see if there is a transmission in progress, if there isn't, then
+     * we can see about performing an echo response to data received.
+     */
+    if( USBUSARTIsTxTrfReady() == true)
+    {
+        uint8_t i;
+        uint8_t numBytesRead;
+
+        numBytesRead = getsUSBUSART(readBuffer, sizeof(readBuffer));
+
+        /* For every byte that was read... */
+        for(i=0; i<numBytesRead; i++)
+        {
+            switch(readBuffer[i])
+            {
+                /* If we receive new line or line feed commands, just echo
+                 * them direct.
+                 */
+                case 0x0A:
+                case 0x0D:
+                    writeBuffer[i] = readBuffer[i];
+                    break;
+
+                /* If we receive something else, then echo it plus one
+                 * so that if we receive 'a', we echo 'b' so that the
+                 * user knows that it isn't the echo enabled on their
+                 * terminal program.
+                 */
+                default:
+                    writeBuffer[i] = readBuffer[i] + 1;
+                    break;
+            }
+        }
+
+        if(numBytesRead > 0)
+        {
+            /* After processing all of the received data, we need to send out
+             * the "echo" data now.
+             */
+            putUSBUSART(writeBuffer,numBytesRead);
+        }
+
+        {
+            writeBuffer[0] = 4;
+            writeBuffer[1] = 8;
+            *((unsigned short *)(&writeBuffer[2])) = accel.axis[0].on;
+            *((unsigned short *)(&writeBuffer[4])) = accel.axis[0].off;
+            *((unsigned short *)(&writeBuffer[6])) = accel.axis[1].on;
+            *((unsigned short *)(&writeBuffer[8])) = accel.axis[1].off;
+            putUSBUSART(writeBuffer, writeBuffer[1]+2);
+        }
+    }
 }
