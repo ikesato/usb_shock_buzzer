@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "usb.h"
 #include "usb_config.h"
@@ -10,11 +11,16 @@
 #include "app.h"
 #include "adxl213.h"
 #include "shock_detector.h"
+#include "util.h"
+#include "gtime.h"
 
 #define T0CNT (65536-375)
 
 /** DEFINES ********************************************************/
-#define BUTTON_DEVICE_CDC_BASIC_DEMO PORTAbits.RA3
+#define PORT_BUTTON     PORTAbits.RA3
+#define PORT_LED_WARN   PORTCbits.RC7
+#define PORT_LED_ALERT  PORTCbits.RC6
+
 
 /** VARIABLES ******************************************************/
 
@@ -25,7 +31,8 @@ static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 static ADXL213 accel;
 static ShockDetector detector;
 static unsigned short gtime_counter=0;
-static unsigned short gtime=0; // 時間単位は0.1秒
+static unsigned short gtime=0; // 時間単位は1/16秒
+static unsigned short last_pressed=0;
 
 void setup(void)
 {
@@ -40,8 +47,6 @@ void setup(void)
     PORTA = 0;
     PORTB = 0;
     PORTC = 0;
-
-PORTCbits.RC7 = 1;
 
     // ADC
     REFCON0 = 0b10100000;  // bit4,5 FVR 01:1.014V 10:2.048V 11:4.096V
@@ -154,7 +159,7 @@ void interrupted(void)
     if (INTCONbits.TMR0IF == 1) {
         TMR0 = T0CNT;
         INTCONbits.TMR0IF = 0;
-        if (++gtime_counter >= 800) {
+        if (++gtime_counter >= 500) { // 500==8000/16, 8000 == 1[sec]
             gtime_counter = 0;
             gtime++;
         }
@@ -177,24 +182,54 @@ void interrupted(void)
 
 void loop(void)
 {
+    unsigned short difft;
     shock_detector_update(&detector, &accel, gtime);
-    switch (detector.shocked) {
-    case SD_SHOCK_LITTLE:
-        PORTCbits.RC6 = 0;
-        PORTCbits.RC7 = 1;
+    switch (detector.mode) {
+    case SD_MODE_NOT_STARTED:
+        PORT_LED_WARN = PORT_LED_ALERT = 0;
+        if (PORT_BUTTON == 0)
+            detector.mode = SD_MODE_STARTED;
         break;
-    case SD_SHOCK_LARGE:
-        PORTCbits.RC6 = 1;
-        PORTCbits.RC7 = 0;
+    case SD_MODE_STARTED:
+        PORT_LED_ALERT = 1;
         break;
-    default:
-        PORTCbits.RC6 = PORTCbits.RC7 = 0;
+    case SD_MODE_UNLOCKING:
+        difft = diff_time(gtime, last_pressed);
+        PORT_LED_ALERT = ((difft & 0xF) == 0xF);
+        if (PORT_BUTTON == 1) {
+            if (abs(TIME_SEC(3) - difft) < TIME_HALF_SEC) { //2.5秒から3.5以内ならロック解除
+                detector.mode = SD_MODE_NOT_STARTED;
+            } else {
+                // TODO: warning buzzer
+                detector.mode = SD_MODE_STARTED;
+            }
+        }
+        break;
+    case SD_MODE_DETECTING:
+        switch (detector.shocked) {
+        case SD_SHOCK_LITTLE:
+            PORT_LED_ALERT = 0;
+            PORT_LED_WARN = 1;
+            break;
+        case SD_SHOCK_LARGE:
+            PORT_LED_ALERT = 1;
+            PORT_LED_WARN = 0;
+            break;
+        default:
+            PORT_LED_WARN = PORT_LED_ALERT = 0;
+            break;
+        }
+        if (PORT_BUTTON == 0) {
+            detector.mode = SD_MODE_UNLOCKING;
+            last_pressed = gtime;
+        }
         break;
     }
+
     /* If the user has pressed the button associated with this demo, then we
      * are going to send a "Button Pressed" message to the terminal.
      */
-    if(BUTTON_DEVICE_CDC_BASIC_DEMO == 0)
+    if(PORT_BUTTON == 0)
     {
         /* Make sure that we only send the message once per button press and
          * not continuously as the button is held.
@@ -208,7 +243,7 @@ void loop(void)
             {
                 //putrsUSBUSART(buttonMessage);
             }
-            detector.mode = (detector.mode == SD_MODE_NOT_STARTED ? SD_MODE_STARTED : SD_MODE_NOT_STARTED);
+            //detector.mode = (detector.mode == SD_MODE_NOT_STARTED ? SD_MODE_STARTED : SD_MODE_NOT_STARTED);
         }
     }
     else

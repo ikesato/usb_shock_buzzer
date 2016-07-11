@@ -17,6 +17,7 @@ typedef struct ShockDetector_t {
 #define SD_MODE_NOT_STARTED     0
 #define SD_MODE_STARTED         1
 #define SD_MODE_DETECTING       2
+#define SD_MODE_UNLOCKING       3
 
 #define SD_SHOCK_STABLE         0
 #define SD_SHOCK_LITTLE         1

@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include "shock_detector.h"
 #include "util.h"
+#include "gtime.h"
 
-#define STABLE_THRESHOLD_STABLE 500
+#define STABLE_THRESHOLD_STABLE 700
 #define STABLE_THRESHOLD_LITTLE 1100
 #define STABLE_THRESHOLD_LARGE  1900
 
@@ -32,7 +33,7 @@ void shock_detector_update(ShockDetector *detector, ADXL213 *accel, unsigned sho
                 difft = 0;
             }
         }
-        if (difft >= 30) { // 3[sec]
+        if (difft >= TIME_SEC(3)) {
             detector->mode = SD_MODE_DETECTING;
         }
     } else if (detector->mode == SD_MODE_DETECTING) {
@@ -44,7 +45,7 @@ void shock_detector_update(ShockDetector *detector, ADXL213 *accel, unsigned sho
                 detector->shocked = SD_SHOCK_LARGE;
                 detector->last_time = now;
             } else if (shock_value[i] < STABLE_THRESHOLD_LITTLE) {
-                if (difft >= 30) { // 3[sec]
+                if (difft >= TIME_SEC(3)) {
                     detector->shocked = SD_SHOCK_STABLE;
                 }
             }
