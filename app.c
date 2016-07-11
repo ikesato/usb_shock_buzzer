@@ -9,6 +9,7 @@
 
 #include "app.h"
 #include "adxl213.h"
+#include "shock_detector.h"
 
 #define T0CNT (65536-375)
 
@@ -22,7 +23,9 @@ static char buttonMessage[] = "Button pressed.\r\n";
 static uint8_t readBuffer[CDC_DATA_OUT_EP_SIZE];
 static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 static ADXL213 accel;
-
+static ShockDetector detector;
+static unsigned short gtime_counter=0;
+static unsigned short gtime=0; // 時間単位は0.1秒
 
 void setup(void)
 {
@@ -54,17 +57,15 @@ PORTCbits.RC7 = 1;
     ANSELH = 0;
     ANSEL = 0b10000000;
 
-    // timer
-    // USB Bootloader では 48MHz で動作
-    //
+    // timer0 for playing audio
+    // USB Bootloader では 48MHz で動作しているので
     // 8kHz を作るには
     //   48MHz/4 * x = 8kHz としたい
     //   x = (48/4)*1000/8 = 1500
-    //   prescaler を 1:4 とすると 1500/4 = 375
+    //   prescaler を 1:4 とすると 1500/4 = 375 (T0CNT)
     //
     T0CONbits.T08BIT = 0;     // 16bit timer
     T0CONbits.T0PS = 0b001;   // prescaler 1:4
-    //T0CONbits.T0PS = 0b111;   // prescaler 1:256
     T0CONbits.T0CS = 0;
     T0CONbits.PSA = 0;        // use prescaler
     T0CONbits.TMR0ON = 1;
@@ -75,8 +76,6 @@ PORTCbits.RC7 = 1;
     INTCONbits.GIEH = 1;
     INTCONbits.GIEL = 1;
 
-
-    // timer1
     T1CONbits.TMR1CS = 0;    // 内部クロック (FOSC/4)
     T1CONbits.T1CKPS = 0b11; // prescaler 1:8
     T1CONbits.RD16 = 1;      // 16bit
@@ -96,11 +95,12 @@ PORTCbits.RC7 = 1;
     PSTRCONbits.STRSYNC = 1;
 
 
+    // timer2 for PWM
     // 8ビットのデーティー幅とする場合は PR2 が 0x3F となる
     // 16MHz の場合
     //   16MHz/4 = 4MHz
     //   4MHz / (0x3F+1) = 4000kHz/64 = 62.5kHz
-    // 48HMz の場合
+    // 48MHz の場合
     //   48MHz/4 = 12MHz
     //   12MHz / (0x3F+1) = 12000kHz/64 = 187.5kHz
     //CCPR1L  = 0x3F;              // デューティ値
@@ -112,19 +112,19 @@ PORTCbits.RC7 = 1;
     T2CONbits.T2OUTPS = 0;    // postscaler 1:1
     T2CONbits.TMR2ON = 1;     // Timer ON
 
-PORTCbits.RC2 = 1;
+    PORTCbits.RC2 = 1;
     // queue
     //queue_init(&queue, queue_buffer, sizeof(queue_buffer));
 
     // for i2c
     //mc24c64_init();
 
-    // for ADXL213
+    // timer3 for ADXL213
+    // 48HMHz で prescaler 1:1 なので
+    //   48MHz/4 = 12MHz
+    //   1 は 1/12 [usec] == 0.0833[usec]
     TMR3 = 0;
     T3CONbits.RD16 = 1;      // 16bit mode
-    //T3CONbits.T3CKPS = 0b10; // prescaler 1:4
-    //T3CONbits.T3CKPS = 0b11; // prescaler 1:8
-    //T3CONbits.T3CKPS = 0b01; // prescaler 1:2
     T3CONbits.T3CKPS = 0b00; // prescaler 1:1
     T3CONbits.T3CCP1 = 1;    // use Timer3 clock source
     T3CONbits.TMR3CS = 0;    // internal clock
@@ -141,6 +141,7 @@ PORTCbits.RC2 = 1;
     IOCBbits.IOCB7 = 1;
 
     adxl213_init(&accel);
+    shock_detector_init(&detector);
 
     // app init
     buttonPressed = false;
@@ -153,6 +154,10 @@ void interrupted(void)
     if (INTCONbits.TMR0IF == 1) {
         TMR0 = T0CNT;
         INTCONbits.TMR0IF = 0;
+        if (++gtime_counter >= 800) {
+            gtime_counter = 0;
+            gtime++;
+        }
     }
     if (INTCONbits.RABIF == 1) {
         INTCONbits.RABIF = 0;
@@ -172,7 +177,20 @@ void interrupted(void)
 
 void loop(void)
 {
-    PORTCbits.RC6 = 1;
+    shock_detector_update(&detector, &accel, gtime);
+    switch (detector.shocked) {
+    case SD_SHOCK_LITTLE:
+        PORTCbits.RC6 = 0;
+        PORTCbits.RC7 = 1;
+        break;
+    case SD_SHOCK_LARGE:
+        PORTCbits.RC6 = 1;
+        PORTCbits.RC7 = 0;
+        break;
+    default:
+        PORTCbits.RC6 = PORTCbits.RC7 = 0;
+        break;
+    }
     /* If the user has pressed the button associated with this demo, then we
      * are going to send a "Button Pressed" message to the terminal.
      */
@@ -183,13 +201,14 @@ void loop(void)
          */
         if(buttonPressed == false)
         {
+            buttonPressed = true;
             /* Make sure that the CDC driver is ready for a transmission.
              */
             if(mUSBUSARTIsTxTrfReady() == true)
             {
-                putrsUSBUSART(buttonMessage);
-                buttonPressed = true;
+                //putrsUSBUSART(buttonMessage);
             }
+            detector.mode = (detector.mode == SD_MODE_NOT_STARTED ? SD_MODE_STARTED : SD_MODE_NOT_STARTED);
         }
     }
     else
@@ -220,7 +239,7 @@ void loop(void)
                  */
                 case 0x0A:
                 case 0x0D:
-                    writeBuffer[i] = readBuffer[i];
+                    //writeBuffer[i] = readBuffer[i];
                     break;
 
                 /* If we receive something else, then echo it plus one
@@ -229,7 +248,7 @@ void loop(void)
                  * terminal program.
                  */
                 default:
-                    writeBuffer[i] = readBuffer[i] + 1;
+                    //writeBuffer[i] = readBuffer[i] + 1;
                     break;
             }
         }
@@ -239,16 +258,38 @@ void loop(void)
             /* After processing all of the received data, we need to send out
              * the "echo" data now.
              */
-            putUSBUSART(writeBuffer,numBytesRead);
+            //putUSBUSART(writeBuffer,numBytesRead);
         }
 
+        //{
+        //    writeBuffer[0] = 4;
+        //    writeBuffer[1] = 8;
+        //    *((unsigned short *)(&writeBuffer[2])) = accel.axis[0].on;
+        //    *((unsigned short *)(&writeBuffer[4])) = accel.axis[0].off;
+        //    *((unsigned short *)(&writeBuffer[6])) = accel.axis[1].on;
+        //    *((unsigned short *)(&writeBuffer[8])) = accel.axis[1].off;
+        //    putUSBUSART(writeBuffer, writeBuffer[1]+2);
+        //}
         {
-            writeBuffer[0] = 4;
-            writeBuffer[1] = 8;
-            *((unsigned short *)(&writeBuffer[2])) = accel.axis[0].on;
-            *((unsigned short *)(&writeBuffer[4])) = accel.axis[0].off;
-            *((unsigned short *)(&writeBuffer[6])) = accel.axis[1].on;
-            *((unsigned short *)(&writeBuffer[8])) = accel.axis[1].off;
+            writeBuffer[0] = 20;
+            writeBuffer[1] = 26;
+            writeBuffer[2] = detector.mode;
+            writeBuffer[3] = detector.shocked;
+            *((unsigned short *)(&writeBuffer[4])) = detector.axis[0].stable_value;
+            *((unsigned short *)(&writeBuffer[6])) = detector.axis[1].stable_value;
+
+            *((unsigned short *)(&writeBuffer[8])) = accel.axis[0].value;
+            *((unsigned short *)(&writeBuffer[10])) = accel.axis[0].on;
+            *((unsigned short *)(&writeBuffer[12])) = accel.axis[0].off;
+            *((unsigned short *)(&writeBuffer[14])) = accel.axis[0].last_time;
+
+            *((unsigned short *)(&writeBuffer[16])) = accel.axis[1].value;
+            *((unsigned short *)(&writeBuffer[18])) = accel.axis[1].on;
+            *((unsigned short *)(&writeBuffer[20])) = accel.axis[1].off;
+            *((unsigned short *)(&writeBuffer[22])) = accel.axis[1].last_time;
+
+            writeBuffer[24] = accel.axis[0].last_pin;
+            writeBuffer[25] = accel.axis[1].last_pin;
             putUSBUSART(writeBuffer, writeBuffer[1]+2);
         }
     }

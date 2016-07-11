@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "adxl213.h"
+#include "util.h"
 
 // ADXL213の抵抗について
 // 10k[ohm] の場合
@@ -44,11 +45,7 @@ void adxl213_update(ADXL213 *accel, unsigned char xpin, unsigned char ypin, unsi
         AccelAxis *axis = &accel->axis[i];
         if (axis->last_pin != pins[i]) {
             axis->last_pin = pins[i];
-            unsigned short t;
-            if (axis->last_time < now)
-                t = now - axis->last_time;
-            else
-                t = 65536 - (axis->last_time - now);
+            unsigned short t = diff_time(now, axis->last_time);
             if (axis->last_pin == 0) {
                 axis->on = t;
             } else {
@@ -63,11 +60,6 @@ void adxl213_low_pass_filter(ADXL213 *accel)
 {
     unsigned short v;
     for (int i=0; i<2; i++) {
-        // 小数点かけ算はプログラムサイズがでかいので回避
-        // この式と等価の処理を行う
-        //accel->axis[i].value = (unsigned short)(accel->axis[i].value * 0.875 + accel->axis[i].on * 0.125);
-        v = accel->axis[i].value;
-        v = (v>>1) + (v>>2) + (v>>3);
-        accel->axis[i].value = v + (accel->axis[i].on >> 3);
+        accel->axis[i].value = calc_low_pass_filter(accel->axis[i].on, accel->axis[i].value);
     }
 }
