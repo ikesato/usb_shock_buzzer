@@ -14,12 +14,14 @@
 #include "util.h"
 #include "gtime.h"
 
-#define T0CNT (65536-375)
 
 /** DEFINES ********************************************************/
 #define PORT_BUTTON     PORTAbits.RA3
 #define PORT_LED_WARN   PORTCbits.RC7
 #define PORT_LED_ALERT  PORTCbits.RC6
+
+#define T0CNT (65536-375)
+#define T1CNT (65536-256)
 
 
 /** VARIABLES ******************************************************/
@@ -33,6 +35,8 @@ static ShockDetector detector;
 static unsigned short gtime_counter=0;
 static unsigned short gtime=0; // 時間単位は1/16秒
 static unsigned short last_pressed=0;
+static char growing = 0; // bit 0:WARN, 1:ALERT
+static unsigned short growing_counter = 0;
 
 void setup(void)
 {
@@ -81,11 +85,13 @@ void setup(void)
     INTCONbits.GIEH = 1;
     INTCONbits.GIEL = 1;
 
+    TMR1 = T1CNT;
     T1CONbits.TMR1CS = 0;    // 内部クロック (FOSC/4)
-    T1CONbits.T1CKPS = 0b11; // prescaler 1:8
+    T1CONbits.T1CKPS = 0b01; // prescaler 1:2
     T1CONbits.RD16 = 1;      // 16bit
     T1CONbits.TMR1ON = 1;
     PIR1bits.TMR1IF = 0;
+    PIE1bits.TMR1IE = 1;
 
 
     // PWM settings
@@ -136,7 +142,6 @@ void setup(void)
     //T3CONbits.T3SYNC = 1;
     T3CONbits.TMR3ON = 1;    // Timer ON
     PIR2bits.TMR3IF = 0;     // clear overflow
-    //PIE2bits.TMR3IE = 1;     // enable interrupt
 
     // for ADXL213 interrupt pins
     INTCONbits.RABIF = 1;
@@ -164,6 +169,18 @@ void interrupted(void)
             gtime++;
         }
     }
+    if (PIR1bits.TMR1IF == 1) {
+        PIR1bits.TMR1IF = 0;
+        TMR1 = T1CNT;
+        if (growing!=0) {
+            growing_counter++;
+            unsigned char strength = calc_growing((unsigned char)(growing_counter>>8));
+            //unsigned char strength = calc_growing((unsigned char)(growing_counter));
+            unsigned char led = (((unsigned char)(growing_counter & 0xff)) < strength);
+            PORT_LED_WARN  = (growing & 0x01) ? led : 0;
+            PORT_LED_ALERT = (growing & 0x02) ? led : 0;
+        }
+    }
     if (INTCONbits.RABIF == 1) {
         INTCONbits.RABIF = 0;
         unsigned short now = TMR3;
@@ -187,15 +204,17 @@ void loop(void)
     switch (detector.mode) {
     case SD_MODE_NOT_STARTED:
         PORT_LED_WARN = PORT_LED_ALERT = 0;
+        growing = 0;
         if (PORT_BUTTON == 0)
             detector.mode = SD_MODE_STARTED;
         break;
     case SD_MODE_STARTED:
-        PORT_LED_ALERT = 1;
+        growing = 0x3;
         break;
     case SD_MODE_UNLOCKING:
         difft = diff_time(gtime, last_pressed);
-        PORT_LED_ALERT = ((difft & 0xF) == 0xF);
+        PORT_LED_WARN = PORT_LED_ALERT = ((difft & 0xF) == 0xF);
+        growing = 0;
         if (PORT_BUTTON == 1) {
             if (abs(TIME_SEC(3) - difft) < TIME_HALF_SEC) { //2.5秒から3.5以内ならロック解除
                 detector.mode = SD_MODE_NOT_STARTED;
@@ -208,15 +227,16 @@ void loop(void)
     case SD_MODE_DETECTING:
         switch (detector.shocked) {
         case SD_SHOCK_LITTLE:
-            PORT_LED_ALERT = 0;
-            PORT_LED_WARN = 1;
+            PORT_LED_ALERT = PORT_LED_WARN = ((gtime>>1) & 0x01);
+            growing = 0;
             break;
         case SD_SHOCK_LARGE:
-            PORT_LED_ALERT = 1;
             PORT_LED_WARN = 0;
+            PORT_LED_ALERT = ((gtime>>1) & 0x01);
+            growing = 0;
             break;
         default:
-            PORT_LED_WARN = PORT_LED_ALERT = 0;
+            growing = 0x1;
             break;
         }
         if (PORT_BUTTON == 0) {
