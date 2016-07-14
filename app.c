@@ -22,6 +22,9 @@
 #define PORT_LED_WARN   PORTCbits.RC7
 #define PORT_LED_ALERT  PORTCbits.RC6
 #define PORT_BEEP       PORTCbits.RC4
+#define PORT_USB_VDD    PORTCbits.RC1
+#define PORT_LED_ACTIVE PORTCbits.RC2
+
 
 #define T0CNT (65536-375)
 #define T1CNT (65536-256)
@@ -42,6 +45,9 @@ static char growing = 0; // bit 0:WARN, 1:ALERT
 static unsigned short growing_counter = 0;
 static unsigned short last_stabled=0;
 static unsigned char playing=0;
+
+void go2sleep(void);
+
 
 void setup(void)
 {
@@ -128,7 +134,7 @@ void setup(void)
     T2CONbits.T2OUTPS = 0;    // postscaler 1:1
     T2CONbits.TMR2ON = 1;     // Timer ON
 
-    PORTCbits.RC2 = 1;
+    PORT_LED_ACTIVE = 1;
     // queue
     //queue_init(&queue, queue_buffer, sizeof(queue_buffer));
 
@@ -157,6 +163,12 @@ void setup(void)
 
     adxl213_init(&accel);
     shock_detector_init(&detector);
+
+    // for wakeup
+    INTCONbits.INT0IE = 1;
+    INTCON2bits.INTEDG0 = 0;
+    INTCON3bits.INT1IE = 1;
+    INTCON2bits.INTEDG1 = 1;
 
     // app init
     buttonPressed = false;
@@ -286,6 +298,11 @@ void loop(void)
         playing = 0;
     }
 
+    if (detector.mode == SD_MODE_NOT_STARTED && PORT_USB_VDD == 0) {
+        go2sleep();
+    }
+
+
     /* If the user has pressed the button associated with this demo, then we
      * are going to send a "Button Pressed" message to the terminal.
      */
@@ -388,4 +405,28 @@ void loop(void)
             putUSBUSART(writeBuffer, writeBuffer[1]+2);
         }
     }
+}
+
+void go2sleep(void)
+{
+    INTCONbits.TMR0IE = 0;
+    INTCONbits.GIEL = 0;
+    INTCONbits.RABIE = 0;
+    SSPIE = 0;
+    BCLIE = 0;
+    PEIE  = 0;
+
+    PORTA = PORTB = PORTC = 0;
+
+    SLEEP();
+    NOP();
+
+    // wake up code
+    INTCONbits.TMR0IE = 1;
+    INTCONbits.GIEL = 1;
+    INTCONbits.RABIE = 1;
+    SSPIE = 1;
+    BCLIE = 1;
+    PEIE  = 1;
+    PORT_LED_ACTIVE = 1;
 }
