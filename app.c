@@ -349,28 +349,28 @@ void loop(void)
         //    *((unsigned short *)(&writeBuffer[8])) = accel.axis[1].off;
         //    putUSBUSART(writeBuffer, writeBuffer[1]+2);
         //}
-        {
-            writeBuffer[0] = 20;
-            writeBuffer[1] = 26;
-            writeBuffer[2] = detector.mode;
-            writeBuffer[3] = detector.shocked;
-            *((unsigned short *)(&writeBuffer[4])) = detector.axis[0].stable_value;
-            *((unsigned short *)(&writeBuffer[6])) = detector.axis[1].stable_value;
-
-            *((unsigned short *)(&writeBuffer[8])) = accel.axis[0].value;
-            *((unsigned short *)(&writeBuffer[10])) = accel.axis[0].on;
-            *((unsigned short *)(&writeBuffer[12])) = accel.axis[0].off;
-            *((unsigned short *)(&writeBuffer[14])) = accel.axis[0].last_time;
-
-            *((unsigned short *)(&writeBuffer[16])) = accel.axis[1].value;
-            *((unsigned short *)(&writeBuffer[18])) = accel.axis[1].on;
-            *((unsigned short *)(&writeBuffer[20])) = accel.axis[1].off;
-            *((unsigned short *)(&writeBuffer[22])) = accel.axis[1].last_time;
-
-            writeBuffer[24] = accel.axis[0].last_pin;
-            writeBuffer[25] = accel.axis[1].last_pin;
-            putUSBUSART(writeBuffer, writeBuffer[1]+2);
-        }
+        //{
+        //    writeBuffer[0] = 20;
+        //    writeBuffer[1] = 26;
+        //    writeBuffer[2] = detector.mode;
+        //    writeBuffer[3] = detector.shocked;
+        //    *((unsigned short *)(&writeBuffer[4])) = detector.axis[0].stable_value;
+        //    *((unsigned short *)(&writeBuffer[6])) = detector.axis[1].stable_value;
+        //
+        //    *((unsigned short *)(&writeBuffer[8])) = accel.axis[0].value;
+        //    *((unsigned short *)(&writeBuffer[10])) = accel.axis[0].on;
+        //    *((unsigned short *)(&writeBuffer[12])) = accel.axis[0].off;
+        //    *((unsigned short *)(&writeBuffer[14])) = accel.axis[0].last_time;
+        //
+        //    *((unsigned short *)(&writeBuffer[16])) = accel.axis[1].value;
+        //    *((unsigned short *)(&writeBuffer[18])) = accel.axis[1].on;
+        //    *((unsigned short *)(&writeBuffer[20])) = accel.axis[1].off;
+        //    *((unsigned short *)(&writeBuffer[22])) = accel.axis[1].last_time;
+        //
+        //    writeBuffer[24] = accel.axis[0].last_pin;
+        //    writeBuffer[25] = accel.axis[1].last_pin;
+        //    putUSBUSART(writeBuffer, writeBuffer[1]+2);
+        //}
     }
 }
 
