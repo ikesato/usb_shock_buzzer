@@ -13,12 +13,15 @@
 #include "shock_detector.h"
 #include "util.h"
 #include "gtime.h"
+#include "sound.h"
 
 
 /** DEFINES ********************************************************/
+#define _XTAL_FREQ (48000000)
 #define PORT_BUTTON     PORTAbits.RA3
 #define PORT_LED_WARN   PORTCbits.RC7
 #define PORT_LED_ALERT  PORTCbits.RC6
+#define PORT_BEEP       PORTCbits.RC4
 
 #define T0CNT (65536-375)
 #define T1CNT (65536-256)
@@ -33,10 +36,12 @@ static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 static ADXL213 accel;
 static ShockDetector detector;
 static unsigned short gtime_counter=0;
-static unsigned short gtime=0; // 時間単位は1/16秒
+unsigned short gtime=0; // 時間単位は1/16秒
 static unsigned short last_pressed=0;
 static char growing = 0; // bit 0:WARN, 1:ALERT
 static unsigned short growing_counter = 0;
+static unsigned short last_stabled=0;
+static unsigned char playing=0;
 
 void setup(void)
 {
@@ -168,6 +173,14 @@ void interrupted(void)
             gtime_counter = 0;
             gtime++;
         }
+        if (playing) {
+            unsigned char v = sound_update();
+            CCPR1L = (v >> 2) & 0x3F;
+            CCP1CONbits.DC1B = (v& 0x3);
+        } else {
+            CCPR1L = 0;
+            CCP1CONbits.DC1B = 0;
+        }
     }
     if (PIR1bits.TMR1IF == 1) {
         PIR1bits.TMR1IF = 0;
@@ -200,6 +213,7 @@ void interrupted(void)
 void loop(void)
 {
     unsigned short difft;
+    unsigned char play = 0;
     shock_detector_update(&detector, &accel, gtime);
     switch (detector.mode) {
     case SD_MODE_NOT_STARTED:
@@ -229,14 +243,17 @@ void loop(void)
         case SD_SHOCK_LITTLE:
             PORT_LED_ALERT = PORT_LED_WARN = ((gtime>>1) & 0x01);
             growing = 0;
+            play = 1;
             break;
         case SD_SHOCK_LARGE:
             PORT_LED_WARN = 0;
             PORT_LED_ALERT = ((gtime>>1) & 0x01);
             growing = 0;
+            play = 2;
             break;
         default:
             growing = 0x1;
+            last_stabled = gtime;
             break;
         }
         if (PORT_BUTTON == 0) {
@@ -244,6 +261,29 @@ void loop(void)
             last_pressed = gtime;
         }
         break;
+    }
+
+    if (play != 0) {
+        difft = diff_time(gtime, last_stabled);
+        if (difft > TIME_HALF_SEC) {
+            if (playing != play) {
+                sound_play(play);
+                // initialize NJU72501
+                // いきなりPWMだとshutdownモードから復帰できない模様
+                // なので 1msec 使ってしっかりと復帰させる
+                CCP1CONbits.CCP1M = 0b0000; // PWM off
+                PORT_BEEP = 0;
+                __delay_ms(10);
+                PORT_BEEP = 1;
+                __delay_ms(10);
+                CCP1CONbits.CCP1M = 0b1100; // PWM on
+            }
+            playing = play;
+        } else {
+            playing = 0;
+        }
+    } else {
+        playing = 0;
     }
 
     /* If the user has pressed the button associated with this demo, then we

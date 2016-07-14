@@ -22,6 +22,7 @@
       <itemPath>adxl213.h</itemPath>
       <itemPath>shock_detector.h</itemPath>
       <itemPath>util.h</itemPath>
+      <itemPath>sound.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -43,6 +44,7 @@
       <itemPath>adxl213.c</itemPath>
       <itemPath>shock_detector.c</itemPath>
       <itemPath>util.c</itemPath>
+      <itemPath>sound.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
