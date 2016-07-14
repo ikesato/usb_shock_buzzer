@@ -32,8 +32,6 @@
 
 /** VARIABLES ******************************************************/
 
-static bool buttonPressed;
-static char buttonMessage[] = "Button pressed.\r\n";
 static uint8_t readBuffer[CDC_DATA_OUT_EP_SIZE];
 static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 static ADXL213 accel;
@@ -169,9 +167,6 @@ void setup(void)
     INTCON2bits.INTEDG0 = 0;
     INTCON3bits.INT1IE = 1;
     INTCON2bits.INTEDG1 = 1;
-
-    // app init
-    buttonPressed = false;
 }
 
 void interrupted(void)
@@ -302,34 +297,6 @@ void loop(void)
         go2sleep();
     }
 
-
-    /* If the user has pressed the button associated with this demo, then we
-     * are going to send a "Button Pressed" message to the terminal.
-     */
-    if(PORT_BUTTON == 0)
-    {
-        /* Make sure that we only send the message once per button press and
-         * not continuously as the button is held.
-         */
-        if(buttonPressed == false)
-        {
-            buttonPressed = true;
-            /* Make sure that the CDC driver is ready for a transmission.
-             */
-            if(mUSBUSARTIsTxTrfReady() == true)
-            {
-                //putrsUSBUSART(buttonMessage);
-            }
-            //detector.mode = (detector.mode == SD_MODE_NOT_STARTED ? SD_MODE_STARTED : SD_MODE_NOT_STARTED);
-        }
-    }
-    else
-    {
-        /* If the button is released, we can then allow a new message to be
-         * sent the next time the button is pressed.
-         */
-        buttonPressed = false;
-    }
 
     /* Check to see if there is a transmission in progress, if there isn't, then
      * we can see about performing an echo response to data received.
