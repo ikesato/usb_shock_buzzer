@@ -43,6 +43,7 @@ static char growing = 0; // bit 0:WARN, 1:ALERT
 static unsigned short growing_counter = 0;
 static unsigned short last_stabled=0;
 static unsigned char playing=0;
+static unsigned short battery=0;
 
 void go2sleep(void);
 
@@ -297,38 +298,28 @@ void loop(void)
         go2sleep();
     }
 
+    if (ADCON0bits.GO_DONE==0) {
+      battery = ADRES & 0x03ff;
+      ADCON0bits.GO_DONE = 1;
+    }
 
     /* Check to see if there is a transmission in progress, if there isn't, then
      * we can see about performing an echo response to data received.
      */
-    if( USBUSARTIsTxTrfReady() == true)
-    {
-        uint8_t i;
+    if (USBUSARTIsTxTrfReady() == true) {
         uint8_t numBytesRead;
-
         numBytesRead = getsUSBUSART(readBuffer, sizeof(readBuffer));
-
-        /* For every byte that was read... */
-        for(i=0; i<numBytesRead; i++)
-        {
-            switch(readBuffer[i])
-            {
-                /* If we receive new line or line feed commands, just echo
-                 * them direct.
-                 */
-                case 0x0A:
-                case 0x0D:
-                    //writeBuffer[i] = readBuffer[i];
-                    break;
-
-                /* If we receive something else, then echo it plus one
-                 * so that if we receive 'a', we echo 'b' so that the
-                 * user knows that it isn't the echo enabled on their
-                 * terminal program.
-                 */
-                default:
-                    //writeBuffer[i] = readBuffer[i] + 1;
-                    break;
+        if (numBytesRead > 0) {
+            switch(readBuffer[0]) {
+            case 5: // read battery voltage
+                writeBuffer[0] = 5;
+                writeBuffer[1] = 2;
+                *((unsigned short *)(&writeBuffer[2])) = battery;
+                putUSBUSART(writeBuffer, writeBuffer[1]+2);
+                break;
+            default:
+                //writeBuffer[i] = readBuffer[i] + 1;
+                break;
             }
         }
 
